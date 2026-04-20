@@ -1,0 +1,63 @@
+name: uptime
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - { name: "AstroWay main",  url: "https://astroway.info/" }
+          - { name: "AstroWay cart",  url: "https://astroway.info/cart/" }
+          - { name: "AstroWay EN",    url: "https://astroway.info/en/" }
+          - { name: "AstroWay app",   url: "https://app.astroway.info/" }
+          - { name: "AstroWay API",   url: "https://api.astroway.info/" }
+    steps:
+      - name: Check endpoint
+        id: check
+        env:
+          URL: ${{ matrix.target.url }}
+        run: |
+          set +e
+          body=$(mktemp)
+          code=$(curl -sS -o "$body" -w '%{http_code}' -m 25 -L \
+                 -A 'Mozilla/5.0 (GitHubActions uptime)' "$URL")
+          curl_rc=$?
+          echo "code=$code curl_rc=$curl_rc"
+          {
+            echo "code=$code"
+            echo "curl_rc=$curl_rc"
+          } >> "$GITHUB_OUTPUT"
+
+          if [ "$curl_rc" -ne 0 ] || [ "$code" -ge 500 ] || [ "$code" = "000" ]; then
+            exit 1
+          fi
+
+      - name: Alert Telegram on failure
+        if: failure()
+        env:
+          TG_BOT:  ${{ secrets.TG_BOT }}
+          TG_CHAT: ${{ secrets.TG_CHAT }}
+          NAME: ${{ matrix.target.name }}
+          URL:  ${{ matrix.target.url }}
+          CODE: ${{ steps.check.outputs.code }}
+          CURL_RC: ${{ steps.check.outputs.curl_rc }}
+        run: |
+          text=$(printf '%s\n%s\n%s\n%s' \
+            "🔴 <b>UPTIME DOWN</b> — astroway.info" \
+            "<b>$NAME</b>" \
+            "<code>$URL</code>" \
+            "HTTP: <b>$CODE</b> (curl rc=$CURL_RC) · via github-actions")
+          payload=$(jq -nc --arg chat "$TG_CHAT" --arg txt "$text" \
+                     '{chat_id: ($chat|tonumber), text: $txt, parse_mode: "HTML", disable_web_page_preview: true}')
+          curl -sS -m 10 -X POST "https://api.telegram.org/bot${TG_BOT}/sendMessage" \
+               -H 'Content-Type: application/json' \
+               -d "$payload"
