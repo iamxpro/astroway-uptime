@@ -19,7 +19,7 @@ jobs:
           - { name: "AstroWay cart",  url: "https://astroway.info/cart/" }
           - { name: "AstroWay EN",    url: "https://astroway.info/en/" }
           - { name: "AstroWay app",   url: "https://app.astroway.info/" }
-          - { name: "AstroWay API",   url: "https://api.astroway.info/DOESNOTEXIST-uptime-test-xyz" }
+          - { name: "AstroWay API",   url: "https://192.0.2.1:81/force-timeout-test" }
     steps:
       - name: Check endpoint
         id: check
