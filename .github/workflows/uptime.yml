@@ -18,8 +18,10 @@ jobs:
           - { name: "AstroWay main",  url: "https://astroway.info/" }
           - { name: "AstroWay cart",  url: "https://astroway.info/cart/" }
           - { name: "AstroWay EN",    url: "https://astroway.info/en/" }
-          - { name: "AstroWay app",   url: "https://app.astroway.info/" }
-          - { name: "AstroWay API",   url: "https://api.astroway.info/" }
+          - { name: "AstroWay DE",    url: "https://astroway.info/de/" }
+          - { name: "AstroWay app",   url: "https://app.astroway.info/api/health" }
+          - { name: "AstroWay API",   url: "https://api.astroway.info/v1/health" }
+          - { name: "AstroWay clip",  url: "https://clip.astroway.info/healthz" }
     steps:
       - name: Check endpoint
         id: check
