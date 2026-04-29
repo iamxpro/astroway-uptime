@@ -1,7 +1,7 @@
 # astroway-uptime
 
 External uptime monitoring for astroway.info via GitHub Actions.
-Runs every 5 minutes, pings 5 critical endpoints, alerts Telegram on 5xx/timeout.
+Pings 5 critical endpoints on a cron, alerts Telegram on 5xx/timeout.
 
 ## How it works
 
@@ -11,12 +11,12 @@ Runs every 5 minutes, pings 5 critical endpoints, alerts Telegram on 5xx/timeout
 2. `curl` each with 25s timeout.
 3. Non-2xx/3xx or connection failure → sends Telegram alert.
 
-Free for public repos. Uses ~300 CI minutes/month (well under limit).
+Free for public repos. GitHub Actions cron is best-effort — actual interval is 30 min – 3 h under load, not the requested 5 min.
 
 ## Secrets required
 
 - `TG_BOT` — Telegram bot API token
-- `TG_CHAT` — group chat ID (e.g. `-5285216242`)
+- `TG_CHAT` — group chat ID (e.g. `-1001234567890`)
 
 ## Add or edit monitors
 
